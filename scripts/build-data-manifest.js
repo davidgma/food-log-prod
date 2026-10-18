@@ -20,6 +20,28 @@ const CANDIDATE_SUFFIXES = [
   'food.jpeg',
 ];
 
+const FETCH_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) FoodLogFetcher/1.0',
+  'Accept': '*/*',
+};
+
+async function fetchWithRetry(url, options = {}, retries = 2) {
+  const mergedOptions = {
+    ...options,
+    headers: { ...FETCH_HEADERS, ...(options.headers || {}) },
+  };
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, mergedOptions);
+      return res;
+    } catch (err) {
+      if (attempt === retries) throw err;
+      await new Promise((r) => setTimeout(r, 200 * (attempt + 1)));
+    }
+  }
+}
+
 async function buildManifest() {
   console.log('Building food log data manifest from pCloud data files...');
 
@@ -79,35 +101,23 @@ async function buildManifest() {
     const batch = candidateDates.slice(i, i + BATCH_SIZE);
     await Promise.all(
       batch.map(async (date) => {
-        const summaryFn = `${date} summary.txt`;
-        let hasSummary = fileSet.has(summaryFn);
-
-        if (!hasSummary) {
-          try {
-            const res = await fetch(REMOTE_BASE_URL + encodeURIComponent(summaryFn), { method: 'GET' });
-            if (res.ok) {
-              hasSummary = true;
-              fileSet.add(summaryFn);
+        // Probe all candidate suffixes for each date directly
+        await Promise.all(
+          CANDIDATE_SUFFIXES.map(async (suffix) => {
+            const fn = `${date} ${suffix}`;
+            if (fileSet.has(fn)) {
               dateSet.add(date);
+              return;
             }
-          } catch (e) {}
-        }
-
-        if (hasSummary || dateSet.has(date)) {
-          await Promise.all(
-            CANDIDATE_SUFFIXES.map(async (suffix) => {
-              const fn = `${date} ${suffix}`;
-              if (fileSet.has(fn)) return;
-              try {
-                const res = await fetch(REMOTE_BASE_URL + encodeURIComponent(fn), { method: 'GET' });
-                if (res.ok) {
-                  fileSet.add(fn);
-                  dateSet.add(date);
-                }
-              } catch (e) {}
-            })
-          );
-        }
+            try {
+              const res = await fetchWithRetry(REMOTE_BASE_URL + encodeURIComponent(fn), { method: 'GET' });
+              if (res.ok) {
+                fileSet.add(fn);
+                dateSet.add(date);
+              }
+            } catch (e) {}
+          })
+        );
       })
     );
   }
@@ -126,7 +136,7 @@ async function buildManifest() {
   // 4. Fetch overview.md
   let overviewMarkdown = '# The Theory\nNo theory overview found.';
   try {
-    const ovRes = await fetch(REMOTE_BASE_URL + 'overview.md');
+    const ovRes = await fetchWithRetry(REMOTE_BASE_URL + 'overview.md');
     if (ovRes.ok) {
       overviewMarkdown = await ovRes.text();
       if (overviewMarkdown.startsWith('data:')) {
@@ -151,7 +161,7 @@ async function buildManifest() {
     const summaryFileName = `${date} summary.txt`;
     const summaryUrl = REMOTE_BASE_URL + encodeURIComponent(summaryFileName);
     try {
-      const res = await fetch(summaryUrl);
+      const res = await fetchWithRetry(summaryUrl);
       if (res.ok) {
         let text = await res.text();
         if (text && text.startsWith('data:')) {
