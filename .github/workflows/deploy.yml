@@ -5,7 +5,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: '24 15 * * *'
+    - cron: '41 11 * * *'
+      timezone: 'Europe/London'
   workflow_dispatch:
 
 permissions:
