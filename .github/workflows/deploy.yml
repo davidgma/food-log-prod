@@ -4,10 +4,8 @@ on:
   push:
     branches:
       - main
-      - master
   schedule:
-    - cron: '0 12 * * *'
-      timezone: 'Europe/London'
+    - cron: '41 11 * * *'
   workflow_dispatch:
 
 permissions:
