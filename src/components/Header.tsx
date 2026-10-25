@@ -103,3 +103,5 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+
+Header.displayName = 'Header';

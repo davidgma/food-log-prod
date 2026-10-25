@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { FoodLogEntry } from '../types/foodLog';
 import { toProperCase } from '../lib/foodDataFetcher';
+import { KpiStrip } from './KpiStrip';
 
 interface FoodLogSectionProps {
   dates: string[];
@@ -239,52 +240,7 @@ export const FoodLogSection: React.FC<FoodLogSectionProps> = ({
                 {isExpanded && (
                   <div className="p-5 md:p-6 border-t border-slate-100 bg-slate-50/50 space-y-6">
                     {/* KPI Strip */}
-                    {stats && (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 bg-white p-4 rounded-xl border border-slate-200">
-                        <div className="p-2">
-                          <span className="text-xs font-bold text-slate-500 block">Calories Eaten</span>
-                          <span className="text-2xl font-black text-blue-600 tabular-nums">
-                            {stats.caloriesEaten ?? '—'} <span className="text-xs font-normal text-slate-500">kcal</span>
-                          </span>
-                        </div>
-
-                        <div className="p-2">
-                          <span className="text-xs font-bold text-slate-500 block">Exercise Calories</span>
-                          <span className="text-2xl font-black text-emerald-600 tabular-nums">
-                            {stats.totalExerciseKcal ?? 0} <span className="text-xs font-normal text-slate-500">kcal</span>
-                          </span>
-                        </div>
-
-                        <div className="p-2">
-                          <span className="text-xs font-bold text-slate-500 block">Net Calories</span>
-                          <span className="text-2xl font-black text-slate-900 tabular-nums">
-                            {stats.netCaloriesKcal ?? stats.caloriesEaten ?? '—'} <span className="text-xs font-normal text-slate-500">kcal</span>
-                          </span>
-                        </div>
-
-                        <div className="p-2">
-                          <span className="text-xs font-bold text-slate-500 block">Weight Eaten</span>
-                          <span className="text-2xl font-black text-slate-900 tabular-nums">
-                            {stats.weightEatenGrams ?? '—'} <span className="text-xs font-normal text-slate-500">g</span>
-                          </span>
-                        </div>
-
-                        <div className="p-2">
-                          <span className="text-xs font-bold text-slate-500 block">Caloric Density</span>
-                          <span className="text-2xl font-black text-slate-900 tabular-nums">
-                            {typeof stats.kcalPerGram === 'number' ? stats.kcalPerGram.toFixed(1) : '—'}{' '}
-                            <span className="text-xs font-normal text-slate-500">kcal/g</span>
-                          </span>
-                        </div>
-
-                        <div className="p-2">
-                          <span className="text-xs font-bold text-slate-500 block">Macros (Fat / Carbs / Protein)</span>
-                          <span className="text-lg font-black text-slate-900 tabular-nums">
-                            {stats.fatPct ?? 0}% / {stats.carbsPct ?? 0}% / {stats.proteinPct ?? 0}%
-                          </span>
-                        </div>
-                      </div>
-                    )}
+                    {stats && <KpiStrip stats={stats} />}
 
                     {/* Itemized Food Log */}
                     {entry.foodItems && entry.foodItems.length > 0 && (
@@ -418,3 +374,5 @@ export const FoodLogSection: React.FC<FoodLogSectionProps> = ({
     </div>
   );
 };
+
+FoodLogSection.displayName = 'FoodLogSection';

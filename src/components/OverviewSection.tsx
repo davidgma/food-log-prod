@@ -37,3 +37,5 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ overviewHtml }
     </div>
   );
 };
+
+OverviewSection.displayName = 'OverviewSection';

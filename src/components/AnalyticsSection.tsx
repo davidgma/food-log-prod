@@ -386,6 +386,8 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
   );
 };
 
+AnalyticsSection.displayName = 'AnalyticsSection';
+
 // SVG Line Chart Component with Y-axis numbers and robust flicker-free hover tooltips
 const LineChartComponent: React.FC<{
   series: { date: string; shortDate: string; value: number }[];
