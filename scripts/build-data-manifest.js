@@ -8,6 +8,7 @@ const REMOTE_BASE_URL = 'https://filedn.com/l8l3tmJlFBQbibudQ3R2XYu/food-data/';
 const CANDIDATE_SUFFIXES = [
   'summary.txt',
   'detail.pdf',
+  'groceries o.html',
   'groceries o.pdf',
   'groceries w.pdf',
   'groceries w.html',

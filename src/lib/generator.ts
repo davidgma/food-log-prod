@@ -64,7 +64,7 @@ export async function generateSite(configPath: string): Promise<string> {
       continue;
     }
 
-    const matchGroceries = file.match(/^(\d{8}) groceries (w|o)\.pdf$/);
+    const matchGroceries = file.match(/^(\d{8}) groceries (w|o)\.(pdf|html|htm)$/i);
     if (matchGroceries) {
       const date = matchGroceries[1];
       if (!groceriesByDate[date]) groceriesByDate[date] = [];
@@ -73,7 +73,7 @@ export async function generateSite(configPath: string): Promise<string> {
         if (waitroseCachedFile) {
            groceriesByDate[date].push(waitroseCachedFile);
         } else {
-           groceriesByDate[date].push(file.replace('.pdf', '.html'));
+           groceriesByDate[date].push(file.endsWith('.pdf') ? file.replace('.pdf', '.html') : file);
         }
       } else {
         groceriesByDate[date].push(file);
@@ -95,6 +95,15 @@ export async function generateSite(configPath: string): Promise<string> {
       if (!nutritionByDate[date]) nutritionByDate[date] = [];
       nutritionByDate[date].push(file);
       continue;
+    }
+  }
+
+  // Deduplicate Ocado files per date: html format takes priority over pdf format
+  for (const date in groceriesByDate) {
+    const list = groceriesByDate[date];
+    const hasOcadoHtml = list.some((f) => f.match(/^(\d{8}) groceries o\.(html|htm)$/i));
+    if (hasOcadoHtml) {
+      groceriesByDate[date] = list.filter((f) => !f.match(/^(\d{8}) groceries o\.pdf$/i));
     }
   }
 

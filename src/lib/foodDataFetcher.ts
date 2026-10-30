@@ -241,6 +241,7 @@ export async function fetchDirectoryIndex(): Promise<{
     const waitroseHtml = allFiles.find((f) => f.match(new RegExp(`^${date}\\s+groceries\\s+w\\.(html|htm)$`, 'i')));
     const waitrosePdf = allFiles.find((f) => f.match(new RegExp(`^${date}\\s+groceries\\s+w\\.pdf$`, 'i')));
     const waitroseJpgs = allFiles.filter((f) => f.match(new RegExp(`^${date}\\s+groceries\\s+w-[^"'\?#\s]+\\.(jpg|jpeg|png)$`, 'i')));
+    const ocadoHtml = allFiles.find((f) => f.match(new RegExp(`^${date}\\s+groceries\\s+o\\.(html|htm)$`, 'i')));
     const ocadoPdf = allFiles.find((f) => f.match(new RegExp(`^${date}\\s+groceries\\s+o\\.pdf$`, 'i')));
     const forestPng = allFiles.find((f) => f.match(new RegExp(`^${date}\\s+groceries\\s+f\\.(png|jpg|jpeg)$`, 'i')));
     const nutritionPdf = allFiles.find((f) => f.match(new RegExp(`^${date}\\s+nutrition\\.pdf$`, 'i')));
@@ -264,7 +265,15 @@ export async function fetchDirectoryIndex(): Promise<{
       });
     }
 
-    if (ocadoPdf) {
+    if (ocadoHtml) {
+      groceries.push({
+        fileName: ocadoHtml,
+        label: 'Ocado Grocery Delivery',
+        url: REMOTE_BASE_URL + encodeURIComponent(ocadoHtml),
+        type: 'ocado',
+        isHtml: true,
+      });
+    } else if (ocadoPdf) {
       groceries.push({
         fileName: ocadoPdf,
         label: 'Ocado Grocery Delivery',
