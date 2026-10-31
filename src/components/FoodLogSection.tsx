@@ -227,7 +227,7 @@ export const FoodLogSection: React.FC<FoodLogSectionProps> = ({
                     )}
                     {entry.detailPdf && (
                       <span className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md">
-                        <FileText className="w-3.5 h-3.5" /> Daily PDF
+                        <FileText className="w-3.5 h-3.5" /> {entry.detailPdf.isHtml ? 'Daily HTML' : 'Daily PDF'}
                       </span>
                     )}
                     <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
@@ -295,7 +295,7 @@ export const FoodLogSection: React.FC<FoodLogSectionProps> = ({
                               onClick={() => handleViewPdf(entry.detailPdf!.url)}
                               className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm font-bold rounded-lg transition-colors flex items-center gap-1.5 shrink-0 shadow-xs"
                             >
-                              <Eye className="w-4 h-4" /> View PDF
+                              <Eye className="w-4 h-4" /> {entry.detailPdf.isHtml ? 'View HTML' : 'View PDF'}
                             </button>
                           </div>
                         )}

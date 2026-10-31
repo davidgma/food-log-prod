@@ -81,7 +81,7 @@ export async function generateSite(configPath: string): Promise<string> {
       continue;
     }
 
-    const matchDetail = file.match(/^(\d{8}) (detail\.pdf|summary\.txt)$/);
+    const matchDetail = file.match(/^(\d{8}) (detail\.(pdf|html|htm)|summary\.txt)$/i);
     if (matchDetail) {
       const date = matchDetail[1];
       if (!daysFoodListByDate[date]) daysFoodListByDate[date] = [];
@@ -104,6 +104,15 @@ export async function generateSite(configPath: string): Promise<string> {
     const hasOcadoHtml = list.some((f) => f.match(/^(\d{8}) groceries o\.(html|htm)$/i));
     if (hasOcadoHtml) {
       groceriesByDate[date] = list.filter((f) => !f.match(/^(\d{8}) groceries o\.pdf$/i));
+    }
+  }
+
+  // Deduplicate Detail files per date: pdf format takes priority over html format
+  for (const date in daysFoodListByDate) {
+    const list = daysFoodListByDate[date];
+    const hasDetailPdf = list.some((f) => f.match(/^(\d{8}) detail\.pdf$/i));
+    if (hasDetailPdf) {
+      daysFoodListByDate[date] = list.filter((f) => !f.match(/^(\d{8}) detail\.(html|htm)$/i));
     }
   }
 
@@ -306,7 +315,7 @@ export async function generateSite(configPath: string): Promise<string> {
   // Also copy files to outputDir if outputDir is different from inputDir
   if (path.resolve(inputDir) !== path.resolve(outputDir)) {
       for (const file of files) {
-          if (file.endsWith('.txt') || file.endsWith('.png') || (file.endsWith('.pdf') && !file.endsWith('groceries w.pdf'))) {
+          if (file.endsWith('.txt') || file.endsWith('.png') || file.endsWith('.html') || file.endsWith('.htm') || (file.endsWith('.pdf') && !file.endsWith('groceries w.pdf'))) {
              fs.copyFileSync(path.join(inputDir, file), path.join(outputDir, file));
           }
       }

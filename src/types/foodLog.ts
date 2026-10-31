@@ -34,6 +34,7 @@ export interface PdfDoc {
   fileName: string;
   label: string;
   url: string;
+  isHtml?: boolean;
 }
 
 export interface FoodLogEntry {

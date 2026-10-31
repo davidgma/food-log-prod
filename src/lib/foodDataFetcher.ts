@@ -1,5 +1,5 @@
 import { marked } from 'marked';
-import { FoodLogEntry, FoodItem, SummaryStats, GroceryDoc, GroceryImageDoc } from '../types/foodLog';
+import { FoodLogEntry, FoodItem, SummaryStats, GroceryDoc, GroceryImageDoc, PdfDoc } from '../types/foodLog';
 
 export const REMOTE_BASE_URL = 'https://filedn.com/l8l3tmJlFBQbibudQ3R2XYu/food-data/';
 
@@ -238,6 +238,7 @@ export async function fetchDirectoryIndex(): Promise<{
 
     // Look for matching files
     const detailPdfFile = allFiles.find((f) => f.match(new RegExp(`^${date}\\s+detail\\.pdf$`, 'i')));
+    const detailHtmlFile = allFiles.find((f) => f.match(new RegExp(`^${date}\\s+detail\\.(html|htm)$`, 'i')));
     const waitroseHtml = allFiles.find((f) => f.match(new RegExp(`^${date}\\s+groceries\\s+w\\.(html|htm)$`, 'i')));
     const waitrosePdf = allFiles.find((f) => f.match(new RegExp(`^${date}\\s+groceries\\s+w\\.pdf$`, 'i')));
     const waitroseJpgs = allFiles.filter((f) => f.match(new RegExp(`^${date}\\s+groceries\\s+w-[^"'\?#\s]+\\.(jpg|jpeg|png)$`, 'i')));
@@ -315,6 +316,30 @@ export async function fetchDirectoryIndex(): Promise<{
       loadedDaysCount += 1;
     }
 
+    let detailPdfDoc: PdfDoc | undefined = undefined;
+    if (detailPdfFile) {
+      detailPdfDoc = {
+        fileName: detailPdfFile,
+        label: 'Cronometer Daily Report',
+        url: REMOTE_BASE_URL + encodeURIComponent(detailPdfFile),
+        isHtml: false,
+      };
+    } else if (detailHtmlFile) {
+      detailPdfDoc = {
+        fileName: detailHtmlFile,
+        label: 'Cronometer Daily Report',
+        url: REMOTE_BASE_URL + encodeURIComponent(detailHtmlFile),
+        isHtml: true,
+      };
+    } else {
+      detailPdfDoc = {
+        fileName: `${date} detail.pdf`,
+        label: 'Cronometer Daily Report',
+        url: REMOTE_BASE_URL + encodeURIComponent(`${date} detail.pdf`),
+        isHtml: false,
+      };
+    }
+
     initialEntries[date] = {
       date,
       formattedDate: full,
@@ -326,15 +351,7 @@ export async function fetchDirectoryIndex(): Promise<{
       rawSummary,
       summaryStats,
       foodItems,
-      detailPdf: detailPdfFile ? {
-        fileName: detailPdfFile,
-        label: 'Cronometer Daily Report',
-        url: REMOTE_BASE_URL + encodeURIComponent(detailPdfFile),
-      } : {
-        fileName: `${date} detail.pdf`,
-        label: 'Cronometer Daily Report',
-        url: REMOTE_BASE_URL + encodeURIComponent(`${date} detail.pdf`),
-      },
+      detailPdf: detailPdfDoc,
       groceries,
       groceryImages,
       nutritionPdf: nutritionPdf ? {
